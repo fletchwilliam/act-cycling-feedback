@@ -15,7 +15,8 @@ let currentBasemap = 'streets';
 // Layer styles storage
 const layerStyles = {
     paths: { ...DEFAULT_LAYER_STYLES.paths },
-    lanes: { ...DEFAULT_LAYER_STYLES.lanes }
+    lanes: { ...DEFAULT_LAYER_STYLES.lanes },
+    crossings: { ...DEFAULT_LAYER_STYLES.paths }
 };
 
 // Custom layer styles
@@ -24,13 +25,15 @@ const customLayerStyles = {};
 // Filter-based coloring
 const filterColors = {
     paths: { enabled: false, field: null, colors: {} },
-    lanes: { enabled: false, field: null, colors: {} }
+    lanes: { enabled: false, field: null, colors: {} },
+    crossings: { enabled: false, field: null, colors: {} }
 };
 
 // Core layer storage
 const coreLayers = {
     paths: { layer: null, data: null, filteredData: null, filters: {} },
-    lanes: { layer: null, data: null, filteredData: null, filters: {} }
+    lanes: { layer: null, data: null, filteredData: null, filters: {} },
+    crossings: { layer: null, data: null, filteredData: null, filters: {} }
 };
 
 // Custom layers storage

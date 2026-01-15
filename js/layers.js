@@ -99,7 +99,7 @@ export function createLayerFromGeoJSON(geojson, color, geometryType, layerName, 
 /**
  * Load a core dataset from a URL
  * @param {string} url - URL to the GeoJSON file
- * @param {string} type - Layer type ('paths' or 'lanes')
+ * @param {string} type - Layer type ('paths', 'lanes', or 'crossings')
  * @param {string} displayName - Display name for the layer
  */
 export async function loadCoreDatasetFromUrl(url, type, displayName) {
@@ -119,15 +119,30 @@ export async function loadCoreDatasetFromUrl(url, type, displayName) {
         coreLayers[type].filteredData = geojson;
         coreLayers[type].filters = {};
 
+        // Determine color based on layer type
+        const getColor = (feature) => {
+            if (type === 'paths') return getPathColor(feature?.properties?.ASSET_SUB_TYPE);
+            if (type === 'lanes') return getLaneColor(feature?.properties?.ASSET_SUB_TYPE);
+            if (type === 'crossings') return '#e91e63'; // Pink for crossings
+            return '#888888';
+        };
+
         coreLayers[type].layer = L.geoJSON(geojson, {
             style: function(feature) {
                 if (getLayerStyleCallback) {
                     return getLayerStyleCallback(type, feature);
                 }
-                const color = type === 'paths'
-                    ? getPathColor(feature?.properties?.ASSET_SUB_TYPE)
-                    : getLaneColor(feature?.properties?.ASSET_SUB_TYPE);
-                return { color, weight: 3, opacity: 0.8 };
+                return { color: getColor(feature), weight: 3, opacity: 0.8 };
+            },
+            pointToLayer: function(feature, latlng) {
+                // Handle point features (crossings are often points)
+                return L.circleMarker(latlng, {
+                    radius: 6,
+                    fillColor: getColor(feature),
+                    color: '#fff',
+                    weight: 2,
+                    fillOpacity: 0.8
+                });
             },
             onEachFeature: function(feature, layer) {
                 layer.bindPopup(formatPopupContent(feature.properties, displayName));
@@ -136,10 +151,6 @@ export async function loadCoreDatasetFromUrl(url, type, displayName) {
                 }
             }
         }).addTo(map);
-
-        const checkboxId = type === 'paths' ? 'togglePaths' : 'toggleLanes';
-        const checkbox = document.getElementById(checkboxId);
-        if (checkbox) checkbox.checked = true;
 
         fitMapToAllLayers();
         if (updateStatsCallback) updateStatsCallback();
