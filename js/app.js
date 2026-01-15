@@ -10,6 +10,7 @@ import * as state from './state.js';
 import { applyPreset } from './utils.js';
 import {
     loadCoreDataset,
+    loadCoreDatasetFromUrl,
     addCustomLayer,
     toggleCoreLayer,
     toggleCustomLayer,
@@ -105,6 +106,65 @@ function applyLayerFilters(layerId) {
 function toggleMobileMenu() {
     const panel = document.getElementById('controlPanel');
     panel.classList.toggle('visible');
+}
+
+/**
+ * Dataset URL mappings for quick load
+ */
+const DATASET_URLS = {
+    'community-path': {
+        url: 'ACTGOV_Community_Path_Assets_-1135529264064258073.geojson',
+        type: 'paths',
+        name: 'Community Path'
+    },
+    'pedestrian-crossings': {
+        url: 'ACTGOV_Pedestrian_Crossing_Assets_-7254283901818788884.geojson',
+        type: 'paths',
+        name: 'Pedestrian Crossings'
+    },
+    'onroad-cycle-lane': {
+        url: 'ACTGOV_On_Road_Cycle_Lane_Assets_8201704897412695020.geojson',
+        type: 'lanes',
+        name: 'Onroad Cycle Lane'
+    }
+};
+
+/**
+ * Quick load a dataset from included GeoJSON files
+ * @param {string} datasetId - Dataset identifier
+ */
+async function quickLoadDataset(datasetId) {
+    const dataset = DATASET_URLS[datasetId];
+    if (!dataset) {
+        alert('Unknown dataset: ' + datasetId);
+        return;
+    }
+
+    // Find and update button state
+    const buttons = document.querySelectorAll('.quick-load-btn');
+    let targetButton = null;
+    buttons.forEach(btn => {
+        if (btn.textContent.toLowerCase().includes(dataset.name.toLowerCase().split(' ')[0])) {
+            targetButton = btn;
+        }
+    });
+
+    if (targetButton) {
+        targetButton.disabled = true;
+        targetButton.textContent = 'Loading...';
+    }
+
+    const success = await loadCoreDatasetFromUrl(dataset.url, dataset.type, dataset.name);
+
+    if (targetButton) {
+        targetButton.disabled = false;
+        if (success) {
+            targetButton.textContent = '✓ ' + dataset.name;
+            targetButton.classList.add('loaded');
+        } else {
+            targetButton.textContent = dataset.name;
+        }
+    }
 }
 
 /**
@@ -261,6 +321,7 @@ async function init() {
 
         // Layers
         loadCoreDataset,
+        quickLoadDataset,
         addCustomLayer,
         toggleCoreLayer,
         toggleCustomLayer,

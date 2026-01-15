@@ -203,6 +203,16 @@
 
         <!-- Core datasets section -->
         <h3>Core Datasets</h3>
+        <div class="quick-load-section">
+            <p style="font-size: 12px; color: #666; margin-bottom: 8px;">Click to load included datasets:</p>
+            <div class="quick-load-buttons">
+                <button class="quick-load-btn" onclick="window.appCallbacks.quickLoadDataset('community-path')">Community Path</button>
+                <button class="quick-load-btn" onclick="window.appCallbacks.quickLoadDataset('pedestrian-crossings')">Pedestrian Crossings</button>
+                <button class="quick-load-btn" onclick="window.appCallbacks.quickLoadDataset('onroad-cycle-lane')">Onroad Cycle Lane</button>
+            </div>
+        </div>
+
+        <p style="font-size: 11px; color: #888; margin: 10px 0;">Or upload your own files:</p>
         <div class="file-input-wrapper">
             <label>Community Path Assets:</label>
             <input type="file" id="pathsFile" accept=".geojson,.json" onchange="window.appCallbacks.loadCoreDataset(this, 'paths')">

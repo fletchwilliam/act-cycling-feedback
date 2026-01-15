@@ -96,6 +96,63 @@ export function createLayerFromGeoJSON(geojson, color, geometryType, layerName, 
  * @param {HTMLInputElement} input - File input element
  * @param {string} type - Dataset type ('paths' or 'lanes')
  */
+/**
+ * Load a core dataset from a URL
+ * @param {string} url - URL to the GeoJSON file
+ * @param {string} type - Layer type ('paths' or 'lanes')
+ * @param {string} displayName - Display name for the layer
+ */
+export async function loadCoreDatasetFromUrl(url, type, displayName) {
+    const map = state.getMap();
+    const coreLayers = state.getCoreLayers();
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+        const geojson = await response.json();
+
+        if (coreLayers[type].layer) {
+            map.removeLayer(coreLayers[type].layer);
+        }
+
+        coreLayers[type].data = geojson;
+        coreLayers[type].filteredData = geojson;
+        coreLayers[type].filters = {};
+
+        coreLayers[type].layer = L.geoJSON(geojson, {
+            style: function(feature) {
+                if (getLayerStyleCallback) {
+                    return getLayerStyleCallback(type, feature);
+                }
+                const color = type === 'paths'
+                    ? getPathColor(feature?.properties?.ASSET_SUB_TYPE)
+                    : getLaneColor(feature?.properties?.ASSET_SUB_TYPE);
+                return { color, weight: 3, opacity: 0.8 };
+            },
+            onEachFeature: function(feature, layer) {
+                layer.bindPopup(formatPopupContent(feature.properties, displayName));
+                if (attachFeedbackClickHandlerCallback) {
+                    attachFeedbackClickHandlerCallback(layer, feature);
+                }
+            }
+        }).addTo(map);
+
+        const checkboxId = type === 'paths' ? 'togglePaths' : 'toggleLanes';
+        const checkbox = document.getElementById(checkboxId);
+        if (checkbox) checkbox.checked = true;
+
+        fitMapToAllLayers();
+        if (updateStatsCallback) updateStatsCallback();
+        if (updateFilterPanelCallback) updateFilterPanelCallback();
+
+        return true;
+    } catch (err) {
+        console.error('Error loading dataset:', err);
+        alert('Error loading dataset: ' + err.message);
+        return false;
+    }
+}
+
 export function loadCoreDataset(input, type) {
     const file = input.files[0];
     if (!file) return;
