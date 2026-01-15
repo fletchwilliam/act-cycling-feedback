@@ -165,59 +165,9 @@
             <div class="feedback-actions">
                 <button class="cancel" onclick="window.appCallbacks.resetFeedbackForm()">Cancel</button>
                 <button class="download" id="downloadFeedbackBtn" onclick="window.appCallbacks.downloadFeedback()" disabled>📥 Download</button>
-                <button class="send" id="sendFeedbackBtn" onclick="window.appCallbacks.submitFeedback()" disabled>📤 Submit</button>
             </div>
         </div>
     </div>
-
-    <!-- Community Features Panel -->
-    <div class="community-panel" id="communityPanel">
-        <h3>
-            👥 Community
-            <button class="close-btn" onclick="window.appCallbacks.toggleCommunityPanel()">×</button>
-        </h3>
-
-        <!-- Heatmap Toggle -->
-        <div class="community-section">
-            <h4>🔥 Heatmap</h4>
-            <div class="toggle-row">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="heatmapToggle" onchange="window.appCallbacks.toggleHeatmap()">
-                    <span class="toggle-slider"></span>
-                </label>
-                <span>Show feedback density</span>
-            </div>
-        </div>
-
-        <!-- Date Filter -->
-        <div class="community-section">
-            <h4>📅 Date Filter</h4>
-            <div class="date-presets">
-                <button class="date-preset active" onclick="window.appCallbacks.applyDatePreset('All time')">All</button>
-                <button class="date-preset" onclick="window.appCallbacks.applyDatePreset('Last 7 days')">7 days</button>
-                <button class="date-preset" onclick="window.appCallbacks.applyDatePreset('Last 30 days')">30 days</button>
-                <button class="date-preset" onclick="window.appCallbacks.applyDatePreset('Last 90 days')">90 days</button>
-            </div>
-            <div class="custom-date-range">
-                <input type="date" id="dateFrom" placeholder="From" onchange="window.appCallbacks.updateDateFilter()">
-                <span>to</span>
-                <input type="date" id="dateTo" placeholder="To" onchange="window.appCallbacks.updateDateFilter()">
-            </div>
-        </div>
-
-        <!-- Load Server Feedback -->
-        <div class="community-section">
-            <h4>🌐 Server Data</h4>
-            <button class="btn btn-primary" onclick="window.appCallbacks.loadFeedbackFromServer()" style="width: 100%;">
-                Load Feedback from Server
-            </button>
-        </div>
-    </div>
-
-    <!-- Community Toggle Button -->
-    <button class="community-toggle-btn" id="communityToggleBtn" onclick="window.appCallbacks.toggleCommunityPanel()">
-        👥 Community
-    </button>
 
     <!-- Analysis Panel (Bottom center) -->
     <div class="analysis-panel" id="analysisPanel">
