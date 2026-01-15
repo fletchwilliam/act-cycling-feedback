@@ -48,9 +48,7 @@ import {
     setupFeedbackMapClickHandler,
     initFeedbackValidation,
     setFeedbackCallbacks,
-    submitFeedback,
-    handleImageSelect,
-    loadFeedbackFromServer
+    handleImageSelect
 } from './feedback.js';
 import {
     setMode,
@@ -84,15 +82,6 @@ import {
     getCacheStats,
     createCachedTileLayer
 } from './offline-tiles.js';
-import {
-    handleUpvote,
-    handleDownvote,
-    toggleHeatmap,
-    createHeatmap,
-    setDateFilter,
-    applyDatePreset,
-    getDatePresets
-} from './community.js';
 
 /**
  * Apply layer filters and update UI
@@ -116,20 +105,6 @@ function applyLayerFilters(layerId) {
 function toggleMobileMenu() {
     const panel = document.getElementById('controlPanel');
     panel.classList.toggle('visible');
-}
-
-/**
- * Toggle community panel
- */
-function toggleCommunityPanel() {
-    const panel = document.getElementById('communityPanel');
-    const btn = document.getElementById('communityToggleBtn');
-    panel.classList.toggle('visible');
-    if (panel.classList.contains('visible')) {
-        btn.style.display = 'none';
-    } else {
-        btn.style.display = 'block';
-    }
 }
 
 /**
@@ -214,47 +189,6 @@ async function clearTileCacheHandler() {
 }
 
 /**
- * Update date filter from UI
- */
-function updateDateFilter() {
-    const fromDate = document.getElementById('dateFrom').value;
-    const toDate = document.getElementById('dateTo').value;
-    setDateFilter(fromDate || null, toDate || null);
-    updateFeedbackLayer();
-
-    // Update date preset buttons
-    document.querySelectorAll('.date-preset').forEach(btn => {
-        btn.classList.remove('active');
-    });
-}
-
-/**
- * Apply date preset and update UI
- * @param {string} presetLabel
- */
-function applyDatePresetHandler(presetLabel) {
-    applyDatePreset(presetLabel);
-    updateFeedbackLayer();
-
-    // Update UI
-    document.querySelectorAll('.date-preset').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.includes(presetLabel.split(' ')[0]));
-    });
-
-    // Clear custom date inputs
-    document.getElementById('dateFrom').value = '';
-    document.getElementById('dateTo').value = '';
-}
-
-/**
- * Toggle heatmap and update checkbox
- */
-function toggleHeatmapHandler() {
-    const isVisible = toggleHeatmap();
-    document.getElementById('heatmapToggle').checked = isVisible;
-}
-
-/**
  * Initialize the application
  */
 async function init() {
@@ -324,7 +258,6 @@ async function init() {
 
         // Mobile
         toggleMobileMenu,
-        toggleCommunityPanel,
 
         // Layers
         loadCoreDataset,
@@ -354,9 +287,7 @@ async function init() {
         downloadFeedback,
         loadFeedbackFiles,
         toggleFeedbackLayer,
-        submitFeedback,
         handleImageSelect,
-        loadFeedbackFromServer,
 
         // GPS
         centerOnLocation,
@@ -365,13 +296,6 @@ async function init() {
         // Offline tiles
         cacheCurrentArea,
         clearTileCache: clearTileCacheHandler,
-
-        // Community features
-        handleUpvote,
-        handleDownvote,
-        toggleHeatmap: toggleHeatmapHandler,
-        applyDatePreset: applyDatePresetHandler,
-        updateDateFilter,
 
         // Analysis/Selection
         setMode,
