@@ -119,7 +119,7 @@ const DATASET_URLS = {
     },
     'pedestrian-crossings': {
         url: 'ACTGOV_Pedestrian_Crossing_Assets_-7254283901818788884.geojson',
-        type: 'paths',
+        type: 'crossings',
         name: 'Pedestrian Crossings'
     },
     'onroad-cycle-lane': {
