@@ -3,6 +3,44 @@
  * @module config
  */
 
+/**
+ * @typedef {Object} LayerStyle
+ * @property {number} weight - Line weight in pixels
+ * @property {number} opacity - Line opacity (0-1)
+ * @property {string} dashArray - SVG dash array pattern
+ * @property {string} lineCap - Line cap style ('round', 'square', 'butt')
+ * @property {string} lineJoin - Line join style ('round', 'miter', 'bevel')
+ * @property {boolean} [useTypeColors] - Whether to use type-based colors
+ * @property {string} [singleColor] - Single color when not using type colors
+ * @property {number} [radius] - Point marker radius
+ * @property {number} [fillOpacity] - Fill opacity for points/polygons
+ * @property {string} [color] - Override color
+ */
+
+/**
+ * @typedef {Object} StylePreset
+ * @property {LayerStyle} paths - Path layer styles
+ * @property {LayerStyle} lanes - Lane layer styles
+ * @property {LayerStyle} custom - Custom layer styles
+ */
+
+/**
+ * @typedef {Object} BasemapConfig
+ * @property {string} url - Tile server URL template
+ * @property {string} attribution - Attribution HTML
+ */
+
+/**
+ * @typedef {Object} LayerPreset
+ * @property {string} name - Default layer name
+ * @property {string} color - Default color hex
+ * @property {string} type - Geometry type ('point', 'line', 'polygon', 'auto')
+ */
+
+/**
+ * Application configuration constants
+ * @type {Object}
+ */
 export const CONFIG = {
     // Map settings
     DEFAULT_MAP_CENTER: [-35.2809, 149.1300],

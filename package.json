@@ -1,0 +1,28 @@
+{
+  "name": "act-cycling-feedback",
+  "version": "1.0.0",
+  "description": "Interactive map for Canberra cycling infrastructure feedback",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint js/**/*.js",
+    "serve": "npx http-server -p 8080"
+  },
+  "keywords": [
+    "cycling",
+    "infrastructure",
+    "canberra",
+    "gis",
+    "leaflet",
+    "feedback"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "eslint": "^8.56.0"
+  },
+  "dependencies": {}
+}

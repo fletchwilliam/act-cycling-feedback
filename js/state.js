@@ -255,3 +255,24 @@ export function applyStylePresetToState(preset) {
         Object.assign(customLayerStyles[layerId], preset.custom);
     }
 }
+
+/**
+ * Get layer info by ID (reduces repeated lookup pattern)
+ * @param {string} layerId - Layer ID ('paths', 'lanes', or custom layer ID)
+ * @returns {Object|null} Layer info object or null if not found
+ */
+export function getLayerById(layerId) {
+    if (layerId === 'paths' || layerId === 'lanes') {
+        return coreLayers[layerId];
+    }
+    return customLayers[layerId] || null;
+}
+
+/**
+ * Check if a layer ID refers to a core layer
+ * @param {string} layerId - Layer ID to check
+ * @returns {boolean} True if core layer
+ */
+export function isCoreLayer(layerId) {
+    return layerId === 'paths' || layerId === 'lanes';
+}

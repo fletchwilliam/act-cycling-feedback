@@ -1,0 +1,25 @@
+{
+    "env": {
+        "browser": true,
+        "es2022": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "globals": {
+        "L": "readonly"
+    },
+    "rules": {
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+        "no-console": ["warn", { "allow": ["warn", "error"] }],
+        "prefer-const": "warn",
+        "eqeqeq": ["error", "always", { "null": "ignore" }],
+        "curly": ["error", "multi-line"],
+        "no-var": "error",
+        "semi": ["error", "always"],
+        "indent": ["warn", 4, { "SwitchCase": 1 }],
+        "quotes": ["warn", "single", { "avoidEscape": true }]
+    }
+}
