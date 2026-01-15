@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Cycling Feedback Management</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --color-primary: #4CAF50;
+            --color-danger: #f44336;
+            --color-warning: #ff9800;
+            --color-info: #2196F3;
+            --color-bg: #f5f5f5;
+            --color-card: #ffffff;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .admin-header {
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-actions button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-export {
+            background: var(--color-info);
+            color: white;
+        }
+
+        .btn-refresh {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        /* Main layout */
+        .admin-container {
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            height: calc(100vh - 60px);
+        }
+
+        /* Sidebar - Filters */
+        .filters-panel {
+            background: var(--color-card);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #ddd;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-apply {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-clear {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--color-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .stat-card.good .value { color: var(--color-primary); }
+        .stat-card.bad .value { color: var(--color-danger); }
+        .stat-card.pending .value { color: var(--color-warning); }
+
+        /* Map section */
+        .map-section {
+            position: relative;
+        }
+
+        #adminMap {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Feedback list */
+        .feedback-panel {
+            background: var(--color-card);
+            overflow-y: auto;
+            border-left: 1px solid #ddd;
+        }
+
+        .feedback-panel-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            background: #fafafa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .feedback-panel-header h2 {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .feedback-count {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .feedback-list {
+            padding: 10px;
+        }
+
+        .feedback-item {
+            background: var(--color-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .feedback-item:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .feedback-item.selected {
+            border: 2px solid var(--color-info);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .feedback-rating {
+            font-size: 20px;
+        }
+
+        .feedback-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: #fff3e0; color: #e65100; }
+        .status-reviewed { background: #e3f2fd; color: #1565c0; }
+        .status-resolved { background: #e8f5e9; color: #2e7d32; }
+        .status-rejected { background: #ffebee; color: #c62828; }
+
+        .feedback-category {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .feedback-location {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .feedback-comment {
+            font-size: 13px;
+            color: #333;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .feedback-meta {
+            font-size: 11px;
+            color: #999;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .feedback-votes {
+            display: flex;
+            gap: 10px;
+        }
+
+        .vote-up { color: var(--color-primary); }
+        .vote-down { color: var(--color-danger); }
+
+        /* Detail panel overlay */
+        .detail-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .detail-overlay.visible {
+            display: flex;
+        }
+
+        .detail-panel {
+            background: white;
+            border-radius: 12px;
+            width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .detail-header {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section h4 {
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .detail-images {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .detail-images img {
+            width: 150px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .detail-actions {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+
+        .detail-actions select {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .detail-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .admin-notes textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .admin-container {
+                grid-template-columns: 300px 1fr;
+            }
+            .feedback-panel {
+                position: fixed;
+                right: 0;
+                top: 60px;
+                bottom: 0;
+                width: 350px;
+                transform: translateX(100%);
+                transition: transform 0.3s;
+                z-index: 100;
+            }
+            .feedback-panel.open {
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                grid-template-columns: 1fr;
+            }
+            .filters-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <h1>Cycling Feedback Admin</h1>
+        <div class="header-actions">
+            <button class="btn-export" onclick="exportData('csv')">Export CSV</button>
+            <button class="btn-export" onclick="exportData('geojson')">Export GeoJSON</button>
+            <button class="btn-refresh" onclick="loadFeedback()">Refresh</button>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <!-- Filters Panel -->
+        <div class="filters-panel">
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="value" id="statTotal">0</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="stat-card pending">
+                    <div class="value" id="statPending">0</div>
+                    <div class="label">Pending</div>
+                </div>
+                <div class="stat-card good">
+                    <div class="value" id="statGood">0</div>
+                    <div class="label">Good</div>
+                </div>
+                <div class="stat-card bad">
+                    <div class="value" id="statBad">0</div>
+                    <div class="label">Bad</div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>Filters</h3>
+
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="filterStatus">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Rating</label>
+                    <select id="filterRating">
+                        <option value="">All Ratings</option>
+                        <option value="good">Good</option>
+                        <option value="bad">Bad</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select id="filterCategory">
+                        <option value="">All Categories</option>
+                        <option value="surface">Surface Quality</option>
+                        <option value="safety">Safety Concern</option>
+                        <option value="lighting">Lighting</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Suburb</label>
+                    <input type="text" id="filterSuburb" placeholder="Enter suburb...">
+                </div>
+
+                <div class="filter-group">
+                    <label>Date From</label>
+                    <input type="date" id="filterDateFrom">
+                </div>
+
+                <div class="filter-group">
+                    <label>Date To</label>
+                    <input type="date" id="filterDateTo">
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn-apply" onclick="applyFilters()">Apply</button>
+                    <button class="btn-clear" onclick="clearFilters()">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section">
+            <div id="adminMap"></div>
+        </div>
+
+        <!-- Feedback List -->
+        <div class="feedback-panel" id="feedbackPanel">
+            <div class="feedback-panel-header">
+                <h2>Feedback Items</h2>
+                <div class="feedback-count" id="feedbackCount">Loading...</div>
+            </div>
+            <div class="feedback-list" id="feedbackList">
+                <!-- Feedback items will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Overlay -->
+    <div class="detail-overlay" id="detailOverlay">
+        <div class="detail-panel">
+            <div class="detail-header">
+                <h3>Feedback Details</h3>
+                <button class="detail-close" onclick="closeDetail()">&times;</button>
+            </div>
+            <div class="detail-content" id="detailContent">
+                <!-- Detail content will be inserted here -->
+            </div>
+            <div class="detail-actions">
+                <select id="detailStatus">
+                    <option value="pending">Pending</option>
+                    <option value="reviewed">Reviewed</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <button class="btn-save" onclick="saveChanges()">Save Changes</button>
+                <button class="btn-delete" onclick="deleteFeedback()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Configuration
+        const API_BASE = '/api';
+
+        // State
+        let map = null;
+        let feedbackData = [];
+        let markers = [];
+        let selectedFeedback = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            loadFeedback();
+            loadStats();
+        });
+
+        // Initialize map
+        function initMap() {
+            map = L.map('adminMap').setView([-35.2809, 149.1300], 12);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            map.on('moveend', () => {
+                updateMarkersInView();
+            });
+        }
+
+        // Load feedback from API
+        async function loadFeedback() {
+            try {
+                const params = new URLSearchParams();
+                const status = document.getElementById('filterStatus').value;
+                const rating = document.getElementById('filterRating').value;
+                const category = document.getElementById('filterCategory').value;
+                const suburb = document.getElementById('filterSuburb').value;
+                const dateFrom = document.getElementById('filterDateFrom').value;
+                const dateTo = document.getElementById('filterDateTo').value;
+
+                if (status) params.set('status', status);
+                if (rating) params.set('rating', rating);
+                if (category) params.set('category', category);
+                if (suburb) params.set('suburb', suburb);
+                if (dateFrom) params.set('from', dateFrom);
+                if (dateTo) params.set('to', dateTo);
+
+                const response = await fetch(`${API_BASE}/feedback?${params}`);
+                const geojson = await response.json();
+
+                feedbackData = geojson.features || [];
+                updateFeedbackList();
+                updateMapMarkers();
+                document.getElementById('feedbackCount').textContent =
+                    `${feedbackData.length} feedback items`;
+
+            } catch (error) {
+                console.error('Error loading feedback:', error);
+                document.getElementById('feedbackCount').textContent = 'Error loading data';
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const stats = await response.json();
+
+                document.getElementById('statTotal').textContent = stats.summary.total;
+                document.getElementById('statPending').textContent = stats.summary.pending_count;
+                document.getElementById('statGood').textContent = stats.summary.good_count;
+                document.getElementById('statBad').textContent = stats.summary.bad_count;
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Update feedback list
+        function updateFeedbackList() {
+            const container = document.getElementById('feedbackList');
+            container.innerHTML = feedbackData.map(feature => {
+                const props = feature.properties;
+                const rating = props.rating === 'good' ? '👍' : '👎';
+                const statusClass = `status-${props.status || 'pending'}`;
+                const date = new Date(props.timestamp).toLocaleDateString();
+
+                return `
+                    <div class="feedback-item" data-id="${props.id}" onclick="showDetail('${props.id}')">
+                        <div class="feedback-header">
+                            <span class="feedback-rating">${rating}</span>
+                            <span class="feedback-status ${statusClass}">${props.status || 'pending'}</span>
+                        </div>
+                        <div class="feedback-category">${props.categoryLabel || props.category}</div>
+                        <div class="feedback-location">${props.pathName || 'Unknown'} - ${props.suburb || 'Unknown'}</div>
+                        ${props.comment ? `<div class="feedback-comment">${props.comment}</div>` : ''}
+                        <div class="feedback-meta">
+                            <span>${date}</span>
+                            <div class="feedback-votes">
+                                <span class="vote-up">▲ ${props.upvotes || 0}</span>
+                                <span class="vote-down">▼ ${props.downvotes || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update map markers
+        function updateMapMarkers() {
+            // Clear existing markers
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            feedbackData.forEach(feature => {
+                const coords = feature.geometry.coordinates;
+                const props = feature.properties;
+                const isGood = props.rating === 'good';
+
+                const marker = L.circleMarker([coords[1], coords[0]], {
+                    radius: 8,
+                    fillColor: isGood ? '#4CAF50' : '#f44336',
+                    color: '#fff',
+                    weight: 2,
+                    fillOpacity: 0.8
+                });
+
+                marker.on('click', () => showDetail(props.id));
+                marker.addTo(map);
+                markers.push(marker);
+            });
+
+            // Fit bounds if there are markers
+            if (markers.length > 0) {
+                const group = L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        // Show feedback detail
+        function showDetail(id) {
+            const feature = feedbackData.find(f => f.properties.id === id);
+            if (!feature) return;
+
+            selectedFeedback = feature;
+            const props = feature.properties;
+
+            const content = `
+                <div class="detail-section">
+                    <h4>Rating & Category</h4>
+                    <p>${props.rating === 'good' ? '👍 Good' : '👎 Bad'} - ${props.categoryLabel || props.category}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Location</h4>
+                    <p><strong>Path:</strong> ${props.pathName || 'Unknown'}</p>
+                    <p><strong>Type:</strong> ${props.pathType || 'Unknown'}</p>
+                    <p><strong>Surface:</strong> ${props.pathSurface || 'Unknown'}</p>
+                    <p><strong>Suburb:</strong> ${props.suburb || 'Unknown'}</p>
+                    <p><strong>Coordinates:</strong> ${feature.geometry.coordinates[1].toFixed(6)}, ${feature.geometry.coordinates[0].toFixed(6)}</p>
+                </div>
+
+                ${props.comment ? `
+                <div class="detail-section">
+                    <h4>Comment</h4>
+                    <p>${props.comment}</p>
+                </div>
+                ` : ''}
+
+                ${props.images && props.images.length > 0 ? `
+                <div class="detail-section">
+                    <h4>Images</h4>
+                    <div class="detail-images">
+                        ${props.images.map(img => `<img src="${img.url}" onclick="window.open('${img.url}')">`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="detail-section">
+                    <h4>Submitter</h4>
+                    <p>${props.submitterName || 'Anonymous'}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Votes</h4>
+                    <p>👍 ${props.upvotes || 0} upvotes | 👎 ${props.downvotes || 0} downvotes</p>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Submitted</h4>
+                    <p>${new Date(props.timestamp).toLocaleString()}</p>
+                </div>
+
+                <div class="detail-section admin-notes">
+                    <h4>Admin Notes</h4>
+                    <textarea id="adminNotes" placeholder="Add notes about this feedback...">${props.adminNotes || ''}</textarea>
+                </div>
+            `;
+
+            document.getElementById('detailContent').innerHTML = content;
+            document.getElementById('detailStatus').value = props.status || 'pending';
+            document.getElementById('detailOverlay').classList.add('visible');
+        }
+
+        // Close detail overlay
+        function closeDetail() {
+            document.getElementById('detailOverlay').classList.remove('visible');
+            selectedFeedback = null;
+        }
+
+        // Save changes to feedback
+        async function saveChanges() {
+            if (!selectedFeedback) return;
+
+            const status = document.getElementById('detailStatus').value;
+            const adminNotes = document.getElementById('adminNotes').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/feedback/${selectedFeedback.properties.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status, adminNotes })
+                });
+
+                if (response.ok) {
+                    alert('Changes saved successfully');
+                    closeDetail();
+                    loadFeedback();
+                    loadStats();
+                } else {
+                    alert('Error saving changes');
+                }
+            } catch (error) {
+                console.error('Error saving:', error);
+                alert('Error saving changes');
+            }
+        }
+
+        // Delete feedback
+        async function deleteFeedback() {
+            if (!selectedFeedback) return;
+
+            if (!confirm('Are you sure you want to delete this feedback? This cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/feedback/${selectedFeedback.properties.id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Feedback deleted');
+                    closeDetail();
+                    loadFeedback();
+                    loadStats();
+                } else {
+                    alert('Error deleting feedback');
+                }
+            } catch (error) {
+                console.error('Error deleting:', error);
+                alert('Error deleting feedback');
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            loadFeedback();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterRating').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterSuburb').value = '';
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            loadFeedback();
+        }
+
+        // Export data
+        function exportData(format) {
+            window.open(`${API_BASE}/admin/export?format=${format}`, '_blank');
+        }
+
+        // Update markers in view (for performance with large datasets)
+        function updateMarkersInView() {
+            // This could be optimized to only show markers in current view
+        }
+
+        // Close overlay on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDetail();
+            }
+        });
+
+        // Close overlay on background click
+        document.getElementById('detailOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'detailOverlay') {
+                closeDetail();
+            }
+        });
+    </script>
+</body>
+</html>
