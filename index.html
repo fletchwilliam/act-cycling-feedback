@@ -197,12 +197,29 @@
     <div class="control-panel" id="controlPanel">
         <h2>🚴 Canberra Infrastructure Map</h2>
 
-        <div class="instructions">
-            Load GeoJSON files to visualize cycling infrastructure, pedestrian crossings, and other spatial data.
+        <!-- Layer visibility section (moved to top) -->
+        <div class="section-divider">
+            <h3>Layer Visibility</h3>
+
+            <div class="layer-toggle">
+                <input type="checkbox" id="togglePaths" checked onchange="window.appCallbacks.toggleCoreLayer('paths')">
+                <label for="togglePaths">Community Paths</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="toggleLanes" checked onchange="window.appCallbacks.toggleCoreLayer('lanes')">
+                <label for="toggleLanes">On Road Cycle Lanes</label>
+            </div>
+
+            <div id="feedbackLayerControls" style="display: none;"></div>
+
+            <h4>Custom Layers</h4>
+            <div id="customLayersList">
+                <p style="color: #888; font-style: italic; font-size: 11px;">No custom layers added yet</p>
+            </div>
         </div>
 
         <!-- Core datasets section -->
-        <h3>Core Datasets</h3>
+        <h3>Load Datasets</h3>
         <div class="quick-load-section">
             <p style="font-size: 12px; color: #666; margin-bottom: 8px;">Click to load included datasets:</p>
             <div class="quick-load-buttons">
@@ -210,17 +227,6 @@
                 <button class="quick-load-btn" onclick="window.appCallbacks.quickLoadDataset('pedestrian-crossings')">Pedestrian Crossings</button>
                 <button class="quick-load-btn" onclick="window.appCallbacks.quickLoadDataset('onroad-cycle-lane')">Onroad Cycle Lane</button>
             </div>
-        </div>
-
-        <p style="font-size: 11px; color: #888; margin: 10px 0;">Or upload your own files:</p>
-        <div class="file-input-wrapper">
-            <label>Community Path Assets:</label>
-            <input type="file" id="pathsFile" accept=".geojson,.json" onchange="window.appCallbacks.loadCoreDataset(this, 'paths')">
-        </div>
-
-        <div class="file-input-wrapper">
-            <label>On Road Cycle Lanes:</label>
-            <input type="file" id="lanesFile" accept=".geojson,.json" onchange="window.appCallbacks.loadCoreDataset(this, 'lanes')">
         </div>
 
         <!-- Add custom layer section -->
@@ -256,27 +262,6 @@
             <p style="font-size: 11px; color: #666; margin-bottom: 8px;">Load feedback GeoJSON files to display on the map</p>
             <input type="file" id="feedbackFile" accept=".geojson,.json" multiple onchange="window.appCallbacks.loadFeedbackFiles(this)">
             <div id="feedbackLayerInfo" style="display: none; margin-top: 8px; font-size: 11px; color: #333;"></div>
-        </div>
-
-        <!-- Layer visibility section -->
-        <div class="section-divider">
-            <h3>Layer Visibility</h3>
-
-            <div class="layer-toggle">
-                <input type="checkbox" id="togglePaths" checked onchange="window.appCallbacks.toggleCoreLayer('paths')">
-                <label for="togglePaths">Community Paths</label>
-            </div>
-            <div class="layer-toggle">
-                <input type="checkbox" id="toggleLanes" checked onchange="window.appCallbacks.toggleCoreLayer('lanes')">
-                <label for="toggleLanes">On Road Cycle Lanes</label>
-            </div>
-
-            <div id="feedbackLayerControls" style="display: none;"></div>
-
-            <h3>Custom Layers</h3>
-            <div id="customLayersList">
-                <p style="color: #888; font-style: italic; font-size: 11px;">No custom layers added yet</p>
-            </div>
         </div>
 
         <!-- Legend -->

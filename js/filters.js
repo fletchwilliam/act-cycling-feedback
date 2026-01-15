@@ -224,12 +224,6 @@ function buildFilterSection(layerId, layerName, features, currentFilters) {
         html += `
             <div class="filter-group">
                 <label>${formatFieldName(field)}</label>
-                <div class="filter-color-mode">
-                    <input type="checkbox" id="color-by-${layerId}-${field}"
-                        ${isColorField ? 'checked' : ''}
-                        onchange="window.appCallbacks.setColorByField('${layerId}', '${field}', this.checked)">
-                    <label for="color-by-${layerId}-${field}">Color by this field</label>
-                </div>
                 <div class="select-all-row">
                     <button onclick="window.appCallbacks.selectAllValues('${layerId}', '${field}')">All</button>
                     <button onclick="window.appCallbacks.selectNoneValues('${layerId}', '${field}')">None</button>
@@ -239,15 +233,11 @@ function buildFilterSection(layerId, layerName, features, currentFilters) {
         for (const val of values) {
             const checked = selectedValues.includes(val) ? 'checked' : '';
             const escapedVal = String(val).replace(/'/g, "\\'");
-            const currentColor = fieldColors[val] || COLOR_PALETTE[0];
             html += `
                 <div class="checkbox-item">
                     <input type="checkbox" id="cb-${layerId}-${field}-${val}" ${checked}
                         onchange="window.appCallbacks.updateCategoricalFilter('${layerId}', '${field}', '${escapedVal}', this.checked)">
                     <label for="cb-${layerId}-${field}-${val}">${val}</label>
-                    <input type="color" value="${currentColor}"
-                        onchange="window.appCallbacks.setFilterValueColor('${layerId}', '${field}', '${escapedVal}', this.value)"
-                        title="Set color for ${val}">
                 </div>`;
         }
 
