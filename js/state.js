@@ -255,3 +255,22 @@ export function applyStylePresetToState(preset) {
         Object.assign(customLayerStyles[layerId], preset.custom);
     }
 }
+
+// API configuration
+let apiUrl = '/api';
+
+/**
+ * Get the API URL
+ * @returns {string} API base URL
+ */
+export function getApiUrl() {
+    return apiUrl;
+}
+
+/**
+ * Set the API URL
+ * @param {string} url - API base URL
+ */
+export function setApiUrl(url) {
+    apiUrl = url;
+}
