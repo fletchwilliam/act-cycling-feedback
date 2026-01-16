@@ -239,10 +239,10 @@ body {
 .control-panel h2 .close-btn {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 32px;
     cursor: pointer;
     color: var(--color-text-secondary);
-    padding: 0;
+    padding: 8px;
     line-height: 1;
 }
 
@@ -637,10 +637,10 @@ body {
 .filter-panel h2 .close-btn {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 32px;
     cursor: pointer;
     color: var(--color-text-secondary);
-    padding: 0;
+    padding: 8px;
     line-height: 1;
 }
 
@@ -1923,11 +1923,14 @@ body {
    ========================================================================== */
 
 @media (max-width: 768px) {
-    /* Show mobile menu button */
+    /* Show mobile menu button - bottom right */
     .mobile-menu-btn {
         display: flex;
         justify-content: center;
         align-items: center;
+        top: auto;
+        bottom: 20px;
+        right: 20px;
     }
 
     /* Show mobile-only elements */
@@ -1999,13 +2002,17 @@ body {
         transform: translateX(0);
     }
 
+    /* Filter toggle button - bottom right, above hamburger */
     .filter-toggle-btn {
-        top: 60px;
-        left: 10px;
+        top: auto;
+        left: auto;
+        bottom: 80px;
+        right: 20px;
     }
 
     .filter-toggle-btn.panel-open {
-        left: 10px;
+        left: auto;
+        right: 20px;
     }
 
     /* Feedback panel - full width at bottom */
