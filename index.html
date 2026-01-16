@@ -184,7 +184,10 @@
     <button class="filter-toggle-btn panel-open" id="filterToggleBtn" onclick="window.appCallbacks.toggleFilterPanel()">🔍 Filters</button>
 
     <div class="filter-panel" id="filterPanel">
-        <h2>🔍 Filter Data</h2>
+        <h2>
+            🔍 Filter Data
+            <button class="close-btn mobile-only" onclick="window.appCallbacks.toggleFilterPanel()">×</button>
+        </h2>
 
         <div id="filterContent">
             <p class="no-data-msg">Load datasets to enable filtering</p>
@@ -195,7 +198,10 @@
     <button class="collapse-btn" onclick="window.appCallbacks.togglePanel()">☰ Panel</button>
 
     <div class="control-panel" id="controlPanel">
-        <h2>🚴 Canberra Infrastructure Map</h2>
+        <h2>
+            🚴 Canberra Infrastructure Map
+            <button class="close-btn mobile-only" onclick="window.appCallbacks.toggleMobileMenu()">×</button>
+        </h2>
 
         <!-- Layer visibility section (moved to top) -->
         <div class="section-divider">
